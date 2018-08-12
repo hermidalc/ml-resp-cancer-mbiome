@@ -104,5 +104,6 @@ ENV/
 *.Rda
 
 # custom dirs and file types
+/data
 /results
 test*
