@@ -651,14 +651,14 @@ pipelines = {
                 { },
             ],
         },
-        # 'QDA': {
-        #     'steps': [
-        #         ('clf', QuadraticDiscriminantAnalysis()),
-        #     ],
-        #     'param_grid': [
-        #         { },
-        #     ],
-        # },
+        'QDA': {
+            'steps': [
+                ('clf', QuadraticDiscriminantAnalysis()),
+            ],
+            'param_grid': [
+                { },
+            ],
+        },
         'MLP': {
             'steps': [
                 ('clf', MLPClassifier()),
