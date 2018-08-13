@@ -896,7 +896,7 @@ if args.analysis == 1:
         mean_bcrs_cv = np.mean(param_cv_scores[param]['bcr'], axis=0)
         std_roc_aucs_cv = np.std(param_cv_scores[param]['roc_auc'], axis=0)
         std_bcrs_cv = np.std(param_cv_scores[param]['bcr'], axis=0)
-        plt.figure('Figure 1-' + str(param_idx + 1))
+        plt.figure('Figure ' + str(args.analysis) + '-' + str(param_idx + 1))
         plt.rcParams['font.size'] = 14
         if param in (
             'fs1__k', 'fs2__k', 'fs2__estimator__n_estimators', 'fs2__estimator__max_depth',
@@ -1109,7 +1109,7 @@ elif args.analysis == 2:
                 xaxis_group_sorted_idxs = np.argsort(
                     np.ma.getdata(search.cv_results_['param_' + param])
                 )
-            plt.figure('Figure 2-' + str(param_idx + 1))
+            plt.figure('Figure ' + str(args.analysis) + '-' + str(param_idx + 1))
             plt.rcParams['font.size'] = 14
             if param in (
                 'fs1__k', 'fs2__k', 'fs2__estimator__n_estimators', 'fs2__estimator__max_depth',
@@ -1169,7 +1169,7 @@ elif args.analysis == 2:
     else:
         dataset_te_basenames = natsorted(list(set(dataset_names) - set(args.datasets_tr)))
     sns.set_palette(sns.color_palette('hls', len(dataset_te_basenames)))
-    plt.figure('Figure 3')
+    plt.figure('Figure ' + str(args.analysis))
     plt.rcParams['font.size'] = 14
     plt.title(
         dataset_tr_name + ' ' + args.clf_meth + ' Classifier (' + args.fs_meth + ' Feature Selection)\n' +
