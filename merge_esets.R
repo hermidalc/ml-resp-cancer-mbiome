@@ -5,23 +5,26 @@ suppressPackageStartupMessages(library("Biobase"))
 source("config.R")
 
 parser <- ArgumentParser()
+parser$add_argument("--datasets", type="character", nargs="+", help="datasets")
 parser$add_argument("--num-tr-combo", type="integer", help="num datasets to combine")
-parser$add_argument("--norm-meth", type="character", nargs="+", help="normalization method")
 parser$add_argument("--feat-type", type="character", nargs="+", help="dataset feat type")
+parser$add_argument("--norm-meth", type="character", nargs="+", help="normalization method")
 parser$add_argument("--load-only", action="store_true", default=FALSE, help="show search and eset load only")
 args <- parser$parse_args()
-
 num_tr_combo <- as.integer(args$num_tr_combo)
-if (!is.null(args$norm_meth)) {
-    norm_methods <- norm_methods[norm_methods %in% args$norm_meth]
+if (!is.null(args$datasets)) {
+    dataset_names <- intersect(dataset_names, args$datasets)
 }
 if (!is.null(args$feat_type)) {
     feat_types <- feat_types[feat_types %in% args$feat_type]
 }
-for (norm_meth in norm_methods) {
-    for (feat_type in feat_types) {
-        suffixes <- c(norm_meth)
-        if (feat_type != "none") suffixes <- c(suffixes, feat_type)
+if (!is.null(args$norm_meth)) {
+    norm_methods <- norm_methods[norm_methods %in% args$norm_meth]
+}
+for (feat_type in feat_types) {
+    suffixes <- c(feat_type)
+    for (norm_meth in norm_methods) {
+        if (norm_meth != "none") suffixes <- c(suffixes, norm_meth)
         for (dataset_name in dataset_names) {
             eset_name <- paste0(c("eset", dataset_name, suffixes), collapse="_")
             eset_file <- paste0("data/", eset_name, ".Rda")

@@ -1,4 +1,5 @@
 # config
+data_file_prefix <- "yams_pd1ml"
 dataset_names <- c(
     "gajewski",
     "pittsburgh",
@@ -6,7 +7,8 @@ dataset_names <- c(
     "zitvogel"
 )
 norm_methods <- c(
-    "none"
+    "none",
+    "ppm"
 )
 feat_types <- c(
     "cdd",
