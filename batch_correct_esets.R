@@ -12,20 +12,20 @@ parser <- ArgumentParser()
 parser$add_argument("--datasets-tr", type="character", nargs="+", help="datasets tr")
 parser$add_argument("--datasets-te", type="character", nargs="+", help="datasets te")
 parser$add_argument("--num-tr-combo", type="integer", help="num datasets to combine")
+parser$add_argument("--data-type", type="character", nargs="+", help="data type")
 parser$add_argument("--norm-meth", type="character", nargs="+", help="normalization method")
-parser$add_argument("--feat-type", type="character", nargs="+", help="dataset feature type")
-parser$add_argument("--filter-type", type="character", nargs="+", help="dataset filter type")
-parser$add_argument("--merge-type", type="character", nargs="+", help="dataset merge type")
+parser$add_argument("--feat-type", type="character", nargs="+", help="feature type")
+parser$add_argument("--prep-type", type="character", nargs="+", help="preprocess type")
 parser$add_argument("--bc-meth", type="character", nargs="+", help="dataset batch correct method")
 parser$add_argument("--load-only", action="store_true", default=FALSE, help="show search and eset load only")
 parser$add_argument("--save-obj", action="store_true", default=FALSE, help="save add-on param obj")
 args <- parser$parse_args()
-
 if (!is.null(args$datasets_tr) && !is.null(args$num_tr_combo)) {
     dataset_tr_name_combos <- combn(intersect(dataset_names, args$datasets_tr), as.integer(args$num_tr_combo))
 } else if (!is.null(args$datasets_tr)) {
     dataset_tr_name_combos <- combn(intersect(dataset_names, args$datasets_tr), length(args$datasets_tr))
 } else {
+    if (is.null(args$num_tr_combo)) stop("--num-tr-combo option required")
     dataset_tr_name_combos <- combn(dataset_names, as.integer(args$num_tr_combo))
 }
 if (!is.null(args$datasets_te)) {
@@ -33,43 +33,62 @@ if (!is.null(args$datasets_te)) {
 } else {
     dataset_te_names <- dataset_names
 }
+if (!is.null(args$data_type)) {
+    data_types <- intersect(data_types, args$data_type)
+}
 if (!is.null(args$norm_meth)) {
     norm_methods <- norm_methods[norm_methods %in% args$norm_meth]
 }
 if (!is.null(args$feat_type)) {
     feat_types <- feat_types[feat_types %in% args$feat_type]
 }
-if (!is.null(args$filter_type)) {
-    filter_types <- filter_types[filter_types %in% args$filter_type]
-}
-if (!is.null(args$merge_type)) {
-    merge_types <- merge_types[merge_types %in% args$merge_type]
+if (!is.null(args$prep_type)) {
+    prep_types <- prep_types[prep_types %in% args$prep_type]
 }
 if (!is.null(args$bc_meth)) {
     bc_methods <- bc_methods[bc_methods %in% args$bc_meth]
 }
 for (col in 1:ncol(dataset_tr_name_combos)) {
-    for (norm_meth in norm_methods) {
-        for (feat_type in feat_types) {
-            suffixes <- c(norm_meth)
-            if (feat_type != "none") suffixes <- c(suffixes, feat_type)
-            for (filter_type in filter_types) {
-                if (filter_type != "none") suffixes <- c(suffixes, filter_type)
-                for (merge_type in merge_types) {
-                    if (merge_type == "none") {
-                        eset_tr_name <- paste0(
-                            c("eset", dataset_tr_name_combos[,col], suffixes, "tr"), collapse="_"
-                        )
+    for (data_type in data_types) {
+        for (norm_meth in norm_methods) {
+            for (feat_type in feat_types) {
+                suffixes <- c(data_type)
+                for (suffix in c(norm_meth, feat_type)) {
+                    if (suffix != "none") suffixes <- c(suffixes, suffix)
+                }
+                for (prep_type in prep_types) {
+                    if (length(dataset_tr_name_combos[,col]) > 1) {
+                        if (prep_type != "none") {
+                            suffixes_tr <- c(suffixes, prep_type, "tr")
+                            if (prep_type != "mrg") {
+                                suffixes_te <- c(suffixes, prep_type)
+                            }
+                            else {
+                                suffixes_te <- suffixes
+                            }
+                        }
+                        else {
+                            suffixes_tr <- c(suffixes, "tr")
+                            suffixes_te <- suffixes
+                        }
+                    }
+                    else if (prep_type != "mrg") {
+                        if (prep_type != "none") {
+                            suffixes_tr <- c(suffixes, prep_type)
+                        }
+                        else {
+                            suffixes_tr <- suffixes
+                        }
+                        suffixes_te <- suffixes_tr
                     }
                     else {
-                        eset_tr_name <- paste0(
-                            c("eset", dataset_tr_name_combos[,col], suffixes, merge_type, "tr"), collapse="_"
-                        )
+                        next
                     }
+                    eset_tr_name <- paste0(c("eset", dataset_tr_name_combos[,col], suffixes_tr), collapse="_")
                     eset_tr_file <- paste0("data/", eset_tr_name, ".Rda")
                     if (!exists(eset_tr_name)) {
                         if (file.exists(eset_tr_file)) {
-                            cat("Loading:", eset_tr_name, "\n")
+                            cat("Loading: ", eset_tr_name, "\n")
                             load(eset_tr_file)
                         }
                         else {
@@ -77,18 +96,15 @@ for (col in 1:ncol(dataset_tr_name_combos)) {
                         }
                     }
                     for (dataset_te_name in setdiff(dataset_te_names, dataset_tr_name_combos[,col])) {
-                        if (merge_type != "none" || (
-                            length(dataset_tr_name_combos[,col]) == 1 &&
-                            dataset_tr_name_combos[,col] %in% multi_dataset_names
-                        )) {
-                            eset_te_name <- paste0(c("eset", dataset_te_name, suffixes), collapse="_")
+                        if (length(dataset_tr_name_combos[,col]) == 1 || prep_type == "mrg") {
+                            eset_te_name <- paste0(c("eset", dataset_te_name, suffixes_te), collapse="_")
                         }
                         else {
                             eset_te_name <- paste0(c(eset_tr_name, dataset_te_name, "te"), collapse="_")
                         }
                         eset_te_file <- paste0("data/", eset_te_name, ".Rda")
                         if (!exists(eset_te_name) & file.exists(eset_te_file)) {
-                            cat("Loading:", eset_te_name, "\n")
+                            cat("Loading: ", eset_te_name, "\n")
                             load(eset_te_file)
                         }
                     }
@@ -122,11 +138,8 @@ for (col in 1:ncol(dataset_tr_name_combos)) {
                                 save(list=eset_tr_bc_obj_name, file=paste0("data/", eset_tr_bc_obj_name, ".Rda"))
                             }
                             for (dataset_te_name in setdiff(dataset_te_names, dataset_tr_name_combos[,col])) {
-                                if (merge_type != "none" || (
-                                    length(dataset_tr_name_combos[,col]) == 1 &&
-                                    dataset_tr_name_combos[,col] %in% multi_dataset_names
-                                )) {
-                                    eset_te_name <- paste0(c("eset", dataset_te_name, suffixes), collapse="_")
+                                if (length(dataset_tr_name_combos[,col]) == 1 || prep_type == "mrg") {
+                                    eset_te_name <- paste0(c("eset", dataset_te_name, suffixes_te), collapse="_")
                                 }
                                 else {
                                     eset_te_name <- paste0(c(eset_tr_name, dataset_te_name, "te"), collapse="_")
@@ -204,11 +217,8 @@ for (col in 1:ncol(dataset_tr_name_combos)) {
                                 save(list=eset_tr_bc_obj_name, file=paste0("data/", eset_tr_bc_obj_name, ".Rda"))
                             }
                             for (dataset_te_name in setdiff(dataset_te_names, dataset_tr_name_combos[,col])) {
-                                if (merge_type != "none" || (
-                                    length(dataset_tr_name_combos[,col]) == 1 &&
-                                    dataset_tr_name_combos[,col] %in% multi_dataset_names
-                                )) {
-                                    eset_te_name <- paste0(c("eset", dataset_te_name, suffixes), collapse="_")
+                                if (length(dataset_tr_name_combos[,col]) == 1 || prep_type == "mrg") {
+                                    eset_te_name <- paste0(c("eset", dataset_te_name, suffixes_te), collapse="_")
                                 }
                                 else {
                                     eset_te_name <- paste0(c(eset_tr_name, dataset_te_name, "te"), collapse="_")
