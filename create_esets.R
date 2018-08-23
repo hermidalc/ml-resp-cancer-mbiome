@@ -39,7 +39,7 @@ for (dataset_group in dataset_groups) {
                 if (file.exists(pdata_file) && file.exists(exprs_file) && file.exists(fdata_file)) {
                     if (!exists("pdata")) {
                         cat("Loading:", pdata_file_basename, "\n")
-                        pdata <- read.delim(paste0("data/", pdata_file_basename, ".txt"), row.names=1)
+                        pdata <- read.delim(pdata_file, row.names=1)
                         rownames(pdata) <- make.names(rownames(pdata))
                     }
                     cat("Loading:", exprs_file_basename, "\n")
