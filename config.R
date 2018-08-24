@@ -26,7 +26,7 @@ feat_types <- c(
     "pfam",
     "prints"
 )
-prep_types <- c(
+prep_methods <- c(
     "none",
     "cff",
     "mrg"
