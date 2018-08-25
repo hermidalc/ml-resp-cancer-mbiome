@@ -38,12 +38,12 @@ for (dataset_group in dataset_groups) {
                 fdata_file <- paste0("data/", fdata_file_basename, ".txt")
                 if (file.exists(pdata_file) && file.exists(exprs_file) && file.exists(fdata_file)) {
                     if (!exists("pdata")) {
-                        cat("Loading:", pdata_file_basename, "\n")
+                        cat(" Loading:", pdata_file_basename, "\n")
                         pdata <- read.delim(pdata_file, row.names=1)
                         rownames(pdata) <- make.names(rownames(pdata))
                     }
-                    cat("Loading:", exprs_file_basename, "\n")
-                    cat("Loading:", fdata_file_basename, "\n")
+                    cat(" Loading:", exprs_file_basename, "\n")
+                    cat(" Loading:", fdata_file_basename, "\n")
                     eset_all <- ExpressionSet(
                         assayData=as.matrix(read.delim(exprs_file, row.names=1)),
                         phenoData=AnnotatedDataFrame(pdata),
