@@ -12,9 +12,9 @@ class_types <- c(
     "sd0",
     "sd1"
 )
-dataset_names <- as.character(
-    sapply(dataset_basenames, FUN=function(x) paste0(x, "-", class_types))
-)
+dataset_names <- as.character(sapply(
+    dataset_basenames, FUN=function(x) paste0(c(x, class_types), collapse="_")
+))
 rna_seq_dataset_names <- c(
 )
 needs_log2_dataset_names <- c(

@@ -56,8 +56,7 @@ for (dataset_group in dataset_groups) {
                     eset_all <- eset_all[rowSums(exprs(eset_all)) > 0,]
                     for (dataset_basename in dataset_basenames) {
                         for (class_type in class_types) {
-                            dataset_name <- paste0(dataset_basename, "-", class_type)
-                            eset_name <- paste0(c("eset", dataset_name, suffixes), collapse="_")
+                            eset_name <- paste0(c("eset", dataset_basename, class_type, suffixes), collapse="_")
                             cat("Creating:", eset_name, "\n")
                             eset <- eset_all[, eset_all$Study == toTitleCase(dataset_basename)]
                             for (label in varLabels(eset)) {
