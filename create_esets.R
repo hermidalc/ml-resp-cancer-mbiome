@@ -6,13 +6,17 @@ suppressPackageStartupMessages(library("tools"))
 source("config.R")
 
 parser <- ArgumentParser()
-parser$add_argument("--datasets", type="character", nargs="+", help="datasets")
+parser$add_argument("--base-datasets", type="character", nargs="+", help="base datasets")
+parser$add_argument("--class-type", type="character", nargs="+", help="class type")
 parser$add_argument("--data-type", type="character", nargs="+", help="data type")
 parser$add_argument("--norm-meth", type="character", nargs="+", help="normalization method")
 parser$add_argument("--feat-type", type="character", nargs="+", help="feature type")
 args <- parser$parse_args()
-if (!is.null(args$datasets)) {
-    dataset_names <- intersect(dataset_names, args$datasets)
+if (!is.null(args$base_datasets)) {
+    dataset_basenames <- intersect(dataset_basenames, args$base_datasets)
+}
+if (!is.null(args$class_type)) {
+    class_types <- intersect(class_types, args$class_type)
 }
 if (!is.null(args$data_type)) {
     data_types <- intersect(data_types, args$data_type)
@@ -49,13 +53,33 @@ for (dataset_group in dataset_groups) {
                         phenoData=AnnotatedDataFrame(pdata),
                         featureData=AnnotatedDataFrame(read.delim(fdata_file, row.names=1))
                     )
-                    for (dataset_name in dataset_names) {
-                        eset_name <- paste0(c("eset", dataset_name, suffixes), collapse="_")
-                        cat("Creating:", eset_name, "\n")
-                        eset <- eset_all[, eset_all$Study == toTitleCase(dataset_name)]
-                        eset <- eset[rowSums(exprs(eset)) > 0, ]
-                        assign(eset_name, eset)
-                        save(list=eset_name, file=paste0("data/", eset_name, ".Rda"))
+                    eset_all <- eset_all[rowSums(exprs(eset_all)) > 0,]
+                    for (dataset_basename in dataset_basenames) {
+                        for (class_type in class_types) {
+                            dataset_name <- paste0(dataset_basename, "-", class_type)
+                            eset_name <- paste0(c("eset", dataset_name, suffixes), collapse="_")
+                            cat("Creating:", eset_name, "\n")
+                            eset <- eset_all[, eset_all$Study == toTitleCase(dataset_basename)]
+                            for (label in varLabels(eset)) {
+                                if (is.factor(eset[[label]])) eset[[label]] <- droplevels(eset[[label]])
+                            }
+                            if (class_type == "sd0") {
+                                eset$Class <- ifelse(
+                                    eset$Response %in% class_info$pos, 1, ifelse(
+                                        eset$Response %in% c(class_info$neg, class_info$sd), 0, NA
+                                    )
+                                )
+                            }
+                            else if (class_type == "sd1") {
+                                eset$Class <- ifelse(
+                                    eset$Response %in% class_info$neg, 0, ifelse(
+                                        eset$Response %in% c(class_info$pos, class_info$sd), 1, NA
+                                    )
+                                )
+                            }
+                            assign(eset_name, eset)
+                            save(list=eset_name, file=paste0("data/", eset_name, ".Rda"))
+                        }
                     }
                 }
             }

@@ -2,15 +2,41 @@
 dataset_groups <- c(
     "yams_pd1ml"
 )
-dataset_names <- c(
+dataset_basenames <- c(
     "gajewski",
     "pittsburgh",
     "wargo",
     "zitvogel"
 )
+class_types <- c(
+    "sd0",
+    "sd1"
+)
+dataset_names <- as.character(
+    sapply(dataset_basenames, FUN=function(x) paste0(x, "-", class_types))
+)
 rna_seq_dataset_names <- c(
 )
 needs_log2_dataset_names <- c(
+)
+class_info <- list(
+    pos = c(
+        "Responder",
+        "CR",
+        "Complete response",
+        "PR",
+        "Partial response"
+    ),
+    neg = c(
+        "Non-Responder",
+        "PD",
+        "Progression",
+        "Dead"
+    ),
+    sd = c(
+        "SD",
+        "Stable"
+    )
 )
 data_types <- c(
     "mgs"
@@ -57,7 +83,7 @@ common_pheno_names <- c(
     "Batch",
     "Class",
     "Response",
-    "Timepoint"
+    "Timepoint",
     "Clin_Response",
     "Host_disease_status",
     "GbNAHS",
