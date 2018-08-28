@@ -32,10 +32,11 @@ for (dataset_group in dataset_groups) {
         pdata_file_basename <- paste0(c(toupper(dataset_group), "Metadata"), collapse="_")
         pdata_file <- paste0("data/", pdata_file_basename, ".txt")
         for (norm_meth in norm_methods) {
-            if (norm_meth == 'none') next
             for (feat_type in feat_types) {
-                if (feat_type == 'none') next
-                suffixes <- c(data_type, norm_meth, feat_type)
+                suffixes <- c(data_type)
+                for (suffix in c(norm_meth, feat_type)) {
+                    if (!(suffix %in% c("none", "None"))) suffixes <- c(suffixes, suffix)
+                }
                 exprs_file_basename <- paste0(toupper(c(dataset_group, feat_type, norm_meth)), collapse="_")
                 exprs_file <- paste0("data/", exprs_file_basename, ".txt")
                 fdata_file_basename <- paste0(c(toupper(c(dataset_group, feat_type)), "FeatTable"), collapse="_")
