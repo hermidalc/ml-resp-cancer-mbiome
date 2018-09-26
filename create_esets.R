@@ -60,9 +60,9 @@ for (dataset_group in dataset_groups) {
                             eset_name <- paste0(c("eset", dataset_basename, suffixes), collapse="_")
                             cat("Creating:", eset_name, "\n")
                             eset <- eset_all[, eset_all$Study == toTitleCase(dataset_basename)]
-                            for (label in varLabels(eset)) {
-                                if (is.factor(eset[[label]])) eset[[label]] <- droplevels(eset[[label]])
-                            }
+                            # for (label in varLabels(eset)) {
+                            #     if (is.factor(eset[[label]])) eset[[label]] <- droplevels(eset[[label]])
+                            # }
                             eset$Class <- ifelse(
                                 eset$Response %in% class_info$pos, 1, ifelse(
                                     eset$Response %in% class_info$neg, 0, NA
@@ -76,9 +76,9 @@ for (dataset_group in dataset_groups) {
                                 eset_name <- paste0(c("eset", dataset_basename, class_type, suffixes), collapse="_")
                                 cat("Creating:", eset_name, "\n")
                                 eset <- eset_all[, eset_all$Study == toTitleCase(dataset_basename)]
-                                for (label in varLabels(eset)) {
-                                    if (is.factor(eset[[label]])) eset[[label]] <- droplevels(eset[[label]])
-                                }
+                                # for (label in varLabels(eset)) {
+                                #     if (is.factor(eset[[label]])) eset[[label]] <- droplevels(eset[[label]])
+                                # }
                                 if (class_type == "sd0") {
                                     eset$Class <- ifelse(
                                         eset$Response %in% class_info$pos, 1, ifelse(
