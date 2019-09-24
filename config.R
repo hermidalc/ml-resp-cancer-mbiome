@@ -47,7 +47,11 @@ data_types <- c(
     "mgs"
 )
 norm_methods <- c(
-    "ppm"
+    "none",
+    "counts",
+    "ppm",
+    "tmm",
+    "vst"
 )
 feat_types <- c(
     "cdd",
@@ -94,4 +98,5 @@ common_pheno_names <- c(
     "GbNAHS",
     "PctAss"
 )
+pdata_cls_name <- "Class"
 matfact_k <- 20
