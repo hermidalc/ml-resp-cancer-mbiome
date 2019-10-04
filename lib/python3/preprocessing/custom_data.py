@@ -14,9 +14,13 @@ numpy2ri.activate()
 
 def deseq2_vst_transform(X, y, geo_means, size_factors, disp_func, blind,
                          fit_type):
-    xt, gm, sf, df = r_deseq2_vst_transform(
-        X, y, geo_means=geo_means, size_factors=size_factors,
-        disp_func=disp_func, blind=blind, fit_type=fit_type)
+    if y is not None:
+        xt, gm, sf, df = r_deseq2_vst_transform(
+            X, y, blind=blind, fit_type=fit_type)
+    else:
+        xt, gm, sf, df = r_deseq2_vst_transform(
+            X, geo_means=geo_means, size_factors=size_factors,
+            disp_func=disp_func, blind=blind, fit_type=fit_type)
     return (np.array(xt, dtype=float), np.array(gm, dtype=float),
             np.array(sf, dtype=float), df)
 
@@ -26,7 +30,7 @@ def edger_tmm_logcpm_transform(X, ref_sample, prior_count):
     return np.array(xt, dtype=float), np.array(rs, dtype=float)
 
 
-class DESeq2MRNVSTransformer(TransformerMixin, BaseEstimator):
+class DESeq2RLEVSTransformer(TransformerMixin, BaseEstimator):
     """DESeq2 median-of-ratios normalization and VST transformation
 
     Parameters
@@ -94,9 +98,9 @@ class DESeq2MRNVSTransformer(TransformerMixin, BaseEstimator):
         if hasattr(self, '_train_done'):
             memory = check_memory(self.memory)
             X = memory.cache(deseq2_vst_transform)(
-                X, geo_means=self.geo_means_, size_factors=self.size_factors_,
-                disp_func=self.disp_func_, blind=self.blind,
-                fit_type=self.fit_type)[0]
+                X, y=None, geo_means=self.geo_means_,
+                size_factors=self.size_factors_, disp_func=self.disp_func_,
+                blind=self.blind, fit_type=self.fit_type)[0]
         else:
             X = self._vst_data
             self._train_done = True

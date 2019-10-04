@@ -1,6 +1,6 @@
 # config
 dataset_groups <- c(
-    "yams_pd1ml"
+    "jams_pd1"
 )
 dataset_basenames <- c(
     "gajewski",
@@ -34,6 +34,7 @@ class_info <- list(
     ),
     neg = c(
         "Non-Responder",
+        "Non_Responder",
         "PD",
         "Progression",
         "Dead"
@@ -54,12 +55,24 @@ norm_methods <- c(
     "vst"
 )
 feat_types <- c(
+    "antibiogram",
     "cdd",
     "ec",
     "go",
+    "interpro",
     "lkt",
+    "panther",
     "pfam",
-    "prints"
+    "phobius",
+    "pirsf",
+    "plasmidfinder",
+    "prints",
+    "product",
+    "resfinder",
+    "smart",
+    "superfamily",
+    "tigrfam",
+    "vfdb"
 )
 prep_methods <- c(
     "none",
@@ -99,4 +112,5 @@ common_pheno_names <- c(
     "PctAss"
 )
 pdata_cls_name <- "Class"
+max_read_length <- 152
 matfact_k <- 20
